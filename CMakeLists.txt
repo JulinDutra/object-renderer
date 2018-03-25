@@ -20,6 +20,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # "C:/SDL2/include/"
 find_path(SDL2_INCLUDE_DIR "SDL2/SDL.h")
 
+if (WIN32)
+  message("Call CMake defining the CMAKE_PREFIX_PATH to find the SDL2 include \
+directory properly on windows.")
+endif()
+
 find_path(GLM_DIR "glm.hpp" PATH_SUFFIXES "glm")
 
 message("Found SDL2: " ${SDL2_INCLUDE_DIR})
@@ -46,9 +51,7 @@ elseif (UNIX)
   endif()
 endif()
 
-set(SRC src/vector3.cpp
-  src/vector3.hpp
-  src/renderer.cpp
+set(SRC src/renderer.cpp
   src/renderer.hpp
   src/object.cpp
   src/object.hpp
@@ -56,10 +59,12 @@ set(SRC src/vector3.cpp
   src/object_loader.hpp
   src/debug.cpp
   src/debug.hpp
-  src/main.cpp)
+  src/main.cpp
+  src/modules/math/vector3.hpp
+  src/3rd/glad/glad.c)
 
 add_executable(${EXEC_NAME} ${SRC})
 
 # Link with OpenGL and SDL2
 target_link_libraries(${EXEC_NAME} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES}
-  ${GLU_LIBRARY})
+  ${GLU_LIBRARY} ${LIBDL_LIBRARIES} ${CMAKE_DL_LIBS})
