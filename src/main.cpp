@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Rafael C. Nunes
+ * Copyright (c) 2018 Rafael C. Nunes
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -9,10 +9,6 @@
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all
- * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,6 +27,8 @@
 #include "debug.hpp"
 #include "renderer.hpp"
 #include "object_loader.hpp"
+
+#include "3rd/glad/glad.h"
 
 /**
  * @brief Prints the usage of the renderer.
@@ -76,6 +74,23 @@ int main(int argc, char *argv[]) {
     // Send the gl context to the renderer
     Renderer opengl_renderer = Renderer(gl);
 
+
+    if (argc > 1) {
+        const std::string object_path = argv[1];
+        auto const dot_pos = object_path.find_last_of('.');
+
+        if (object_path.substr(dot_pos+1) == "obj") {
+            loader = new ObjectLoader(object_path);
+
+            Object obj = loader->load();
+
+            opengl_renderer.render(obj);
+
+        } else {
+            usage();
+        }
+    }
+
     uint32_t frame = 0;
     uint32_t fps = 60;
 
@@ -86,21 +101,6 @@ int main(int argc, char *argv[]) {
 #if !__WIN32__
     Debug::log("GLSL version: ", glGetString(GL_SHADING_LANGUAGE_VERSION));
 #endif // not adding more headers just to have this working, for now.
-
-
-    if (argc > 1) {
-        const std::string object_path = argv[1];
-        auto const dot_pos = object_path.find_last_of('.');
-
-        if (object_path.substr(dot_pos+1) == "obj") {
-            loader = new ObjectLoader(object_path);
-
-        } else {
-            usage();
-        }
-    }
-
-    // TODO: Render the loaded object onto the screen.
 
     while (running) {
         frame = SDL_GetTicks();
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
         }
 
 #ifdef DEBUG
-            Debug::log("Delay: ", delay);
+        Debug::log("Delay: ", delay);
 #endif // DEBUG
     }
 
@@ -173,13 +173,14 @@ int main(int argc, char *argv[]) {
 }
 
 void usage() {
-    std::cerr << "This program should be run with one of the current ways:\n";
+    std::string sys;
+
 #ifdef __WIN32__
-    std::cerr << "renderer.exe <path_to_object.obj>\n"
-	      << "renderer.exe";
+    sys = "renderer.exe";
 #else
-    std::cerr << "renderer.out <path_to_object.obj>\n"
-	      << "renderer.out";
-#endif
-    std::cerr << std::endl;
+    sys = "renderer.out";
+#endif // __WIN32__
+
+    Debug::log_err("This program should be run with one of the current\
+ ways:\n\n\t1.\t", sys, " <path_to_object.obj>\n\t2.\t", sys);
 }
