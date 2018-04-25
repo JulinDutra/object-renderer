@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-#include "utils/macros.hpp"
+#include "modules/utils/macros.hpp"
 
 /**
  * @brief The Debug class is where debug functions are defined, using the power
